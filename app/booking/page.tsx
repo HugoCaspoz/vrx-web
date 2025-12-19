@@ -1,4 +1,4 @@
-import { Calendar as CalendarIcon, Clock, Users } from "lucide-react";
+// import { Calendar as CalendarIcon, Clock, Users } from "lucide-react"; // Icons unused
 import { BookingForm } from "@/components/booking/BookingForm";
 
 export default function BookingPage() {

@@ -15,7 +15,7 @@ import { createBooking } from "@/app/actions/booking";
 
 export function BookingForm() {
     const [step, setStep] = useState<Step>("date");
-    const [isSubmitting, setIsSubmitting] = useState(false);
+    // const [isSubmitting, setIsSubmitting] = useState(false);
     const [formData, setFormData] = useState({
         date: "",
         time: "",
@@ -31,7 +31,7 @@ export function BookingForm() {
 
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
-        setIsSubmitting(true);
+        // setIsSubmitting(true);
 
         try {
             const result = await createBooking(formData);
@@ -44,7 +44,7 @@ export function BookingForm() {
             console.error(error);
             alert("Error de conexión");
         } finally {
-            setIsSubmitting(false);
+            // setIsSubmitting(false);
         }
     };
 

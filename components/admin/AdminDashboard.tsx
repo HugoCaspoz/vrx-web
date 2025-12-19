@@ -2,11 +2,11 @@
 
 import { useState, useMemo } from "react";
 import { BookingTable } from "./BookingTable";
-import { Filter, X, Calendar } from "lucide-react";
+import { Filter, Calendar } from "lucide-react";
 
 interface AdminDashboardProps {
-    bookings: any[];
-    user: any;
+    bookings: any[]; // eslint-disable-line @typescript-eslint/no-explicit-any
+    user: any; // eslint-disable-line @typescript-eslint/no-explicit-any
 }
 
 export default function AdminDashboard({ bookings: initialBookings, user }: AdminDashboardProps) {

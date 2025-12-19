@@ -3,7 +3,7 @@
 import { prisma } from "@/lib/prisma";
 import { revalidatePath } from "next/cache";
 
-export async function createBooking(formData: any) {
+export async function createBooking(formData: any) { // eslint-disable-line @typescript-eslint/no-explicit-any
     try {
         const booking = await prisma.booking.create({
             data: {

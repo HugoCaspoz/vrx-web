@@ -1,11 +1,11 @@
 "use client";
 
 import { useState } from "react";
-import { Calendar, User, Wrench, Filter, X, Edit } from "lucide-react";
+import { Calendar, User, Wrench, Edit } from "lucide-react";
 import { EditBookingModal } from "@/components/admin/EditBookingModal";
 
-export function BookingTable({ bookings }: { bookings: any[] }) {
-    const [editingBooking, setEditingBooking] = useState<any>(null);
+export function BookingTable({ bookings }: { bookings: any[] }) { // eslint-disable-line @typescript-eslint/no-explicit-any
+    const [editingBooking, setEditingBooking] = useState<any>(null); // eslint-disable-line @typescript-eslint/no-explicit-any
 
     return (
         <div className="bg-zinc-900 rounded-xl border border-white/5 overflow-hidden">

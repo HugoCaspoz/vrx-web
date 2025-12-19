@@ -12,7 +12,7 @@ const stripe = new Stripe(process.env.STRIPE_SECRET_KEY, {
     typescript: true,
 });
 
-export async function createCheckoutSession(cart: any[]) {
+export async function createCheckoutSession(cart: any[]) { // eslint-disable-line @typescript-eslint/no-explicit-any
     try {
         const origin = (await headers()).get("origin");
 

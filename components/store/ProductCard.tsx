@@ -29,7 +29,7 @@ export function ProductCard({ product }: ProductCardProps) {
 
                 <button
                     onClick={() => addToCart(product)}
-                    className="absolute bottom-4 right-4 bg-primary text-black p-3 rounded-full translate-y-20 opacity-0 group-hover:translate-y-0 group-hover:opacity-100 transition-all duration-300 shadow-lg hover:bg-white"
+                    className="absolute bottom-4 right-4 bg-primary text-black p-3 rounded-full shadow-lg hover:bg-white transition-all duration-300 translate-y-0 opacity-100 md:translate-y-20 md:opacity-0 md:group-hover:translate-y-0 md:group-hover:opacity-100"
                 >
                     <ShoppingCart className="w-5 h-5" />
                 </button>

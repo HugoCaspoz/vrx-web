@@ -80,7 +80,7 @@ export function BookingForm() {
                         </h2>
                         <input
                             type="date"
-                            className="w-full bg-white/5 border border-white/10 rounded-lg p-4 text-white text-lg focus:border-primary outline-none transition-colors [color-scheme:dark]"
+                            className="w-full bg-white/5 border border-white/10 rounded-lg p-4 h-[60px] text-white text-lg focus:border-primary outline-none transition-colors appearance-none [&::-webkit-calendar-picker-indicator]:invert"
                             onChange={(e) => setFormData({ ...formData, date: e.target.value })}
                             value={formData.date}
                         />

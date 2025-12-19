@@ -56,31 +56,33 @@ export default function AdminDashboard({ bookings: initialBookings, user }: Admi
         <div className="container mx-auto px-4 py-8">
             <header className="flex flex-col md:flex-row justify-between items-center mb-10 gap-4">
                 <div>
-                    <h1 className="text-3xl font-bold italic">Panel de Control <span className="text-primary">VRX</span></h1>
+                    <h1 className="text-2xl md:text-3xl font-bold italic">Panel de Control <span className="text-primary">VRX</span></h1>
                     <div className="text-sm text-gray-400">Hola, {user?.name}</div>
                 </div>
 
                 {/* Filter Controls */}
-                <div className="flex flex-wrap items-center gap-2 bg-zinc-900 p-2 rounded-xl border border-white/5">
-                    <div className="flex items-center gap-2 px-2 border-r border-white/10 pr-4">
-                        <Filter className="w-4 h-4 text-primary" />
-                        <span className="text-sm font-bold text-gray-400 uppercase">Filtros</span>
+                <div className="w-full md:w-auto flex flex-col md:flex-row gap-3 bg-zinc-900 p-3 rounded-xl border border-white/5">
+                    <div className="flex items-center justify-between gap-2 md:border-r md:border-white/10 md:pr-4">
+                        <div className="flex items-center gap-2">
+                            <Filter className="w-4 h-4 text-primary" />
+                            <span className="text-sm font-bold text-gray-400 uppercase">Filtros</span>
+                        </div>
+
+                        <select
+                            value={statusFilter}
+                            onChange={(e) => setStatusFilter(e.target.value)}
+                            className="bg-black/50 text-sm border border-white/10 rounded-lg px-3 py-2 outline-none focus:border-primary text-white"
+                        >
+                            <option value="all">Todos</option>
+                            <option value="pending">Pendientes</option>
+                            <option value="confirmed">Completadas</option>
+                            <option value="cancelled">Canceladas</option>
+                        </select>
                     </div>
 
-                    <select
-                        value={statusFilter}
-                        onChange={(e) => setStatusFilter(e.target.value)}
-                        className="bg-black/50 text-sm border border-white/10 rounded-lg px-3 py-2 outline-none focus:border-primary"
-                    >
-                        <option value="all">Todos los estados</option>
-                        <option value="pending">Pendientes</option>
-                        <option value="confirmed">Completadas</option>
-                        <option value="cancelled">Canceladas</option>
-                    </select>
+                    <div className="hidden md:block h-6 w-px bg-white/10 mx-2" />
 
-                    <div className="h-6 w-px bg-white/10 mx-2" />
-
-                    <div className="flex items-center gap-1">
+                    <div className="flex overflow-x-auto pb-1 md:pb-0 gap-1 no-scrollbar">
                         <button
                             onClick={() => setDateFilter("all")}
                             className={`px-3 py-2 rounded-lg text-sm transition-colors ${dateFilter === "all" ? "bg-primary text-black font-bold" : "hover:bg-white/10 text-gray-400"}`}

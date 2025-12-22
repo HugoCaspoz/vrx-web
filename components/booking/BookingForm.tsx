@@ -231,7 +231,7 @@ export function BookingForm() {
                         </h2>
                         <div className="grid grid-cols-3 gap-3">
                             {TIME_SLOTS.map((slot) => {
-                                const isDisabled = unavailableSlots.includes(slot);
+                                const isDisabled = unavailableSlots.includes("ALL") || unavailableSlots.includes(slot);
                                 return (
                                     <button
                                         key={slot}

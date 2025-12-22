@@ -14,6 +14,8 @@ const TIME_SLOTS = [
 import { createBooking } from "@/app/actions/booking";
 import { EURO_CARS } from "@/lib/euro-cars";
 
+const POPULAR_MAKES = Object.keys(EURO_CARS);
+
 export function BookingForm() {
     const [step, setStep] = useState<Step>("date");
     // const [isSubmitting, setIsSubmitting] = useState(false);
@@ -33,8 +35,6 @@ export function BookingForm() {
     const [loadingMakes, setLoadingMakes] = useState(false);
     const [loadingModels, setLoadingModels] = useState(false);
     
-    // Popular brands to show at the top
-    const POPULAR_MAKES = Object.keys(EURO_CARS);
 
     const [formData, setFormData] = useState({
         date: "",
@@ -128,8 +128,8 @@ export function BookingForm() {
         
         if (generation && formData.carMake in EURO_CARS && selectedFamily) {
              const makeData = EURO_CARS[formData.carMake as keyof typeof EURO_CARS];
-             // @ts-ignore
-             const engines = makeData.models[selectedFamily][generation];
+             // eslint-disable-next-line @typescript-eslint/no-explicit-any
+             const engines = (makeData.models as any)[selectedFamily][generation];
              setEuroEngines(engines);
         }
     };

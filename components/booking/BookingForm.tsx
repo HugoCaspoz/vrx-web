@@ -326,35 +326,34 @@ export function BookingForm() {
                             <div>
                                 <label className="text-xs font-bold text-gray-500 uppercase">Motorización</label>
                                 {formData.carMake && formData.carMake in EURO_CARS && selectedGeneration ? (
-                                     <select
+                                    <select
                                         required
                                         value={formData.carEngine}
                                         onChange={(e) => setFormData({ ...formData, carEngine: e.target.value })}
-                                        className="w-full mt-1 bg-white/5 border border-white/10 rounded-lg p-3 focus:border-primary outline-none text-white [&>option]:bg-black"
+                                        className="w-full mt-1 bg-white/5 border border-white/10 rounded-lg p-3 focus:border-primary outline-none text-white [&>optgroup]:bg-black [&>option]:bg-black [&>optgroup]:text-white [&>option]:text-white"
                                     >
-                                        <option value="">Seleccionar Motor</option>
-                                        <option value="">Seleccionar Motor</option>
+                                        <option value="" className="bg-black text-white">Seleccionar Motor</option>
                                         {Array.isArray(euroEngines) ? (
                                             euroEngines.map(engine => (
-                                                <option key={engine} value={engine}>{engine}</option>
+                                                <option key={engine} value={engine} className="bg-black text-white">{engine}</option>
                                             ))
                                         ) : (
                                             <>
                                                 {/* @ts-expect-error - Dynamic access to optional diesel property */}
                                                 {euroEngines.diesel && euroEngines.diesel.length > 0 && (
-                                                    <optgroup label="DIÉSEL">
+                                                    <optgroup label="DIÉSEL" className="bg-black text-white font-bold">
                                                         {/* @ts-expect-error - Dynamic mapping of diesel engines */}
                                                         {euroEngines.diesel.map((engine: string) => (
-                                                            <option key={engine} value={`${engine} (Diésel)`}>{engine}</option>
+                                                            <option key={engine} value={`${engine} (Diésel)`} className="bg-black text-white ml-2">{engine}</option>
                                                         ))}
                                                     </optgroup>
                                                 )}
                                                 {/* @ts-expect-error - Dynamic access to optional gas property */}
                                                 {euroEngines.gas && euroEngines.gas.length > 0 && (
-                                                    <optgroup label="GASOLINA">
+                                                    <optgroup label="GASOLINA" className="bg-black text-white font-bold">
                                                         {/* @ts-expect-error - Dynamic mapping of gas engines */}
                                                         {euroEngines.gas.map((engine: string) => (
-                                                            <option key={engine} value={`${engine} (Gasolina)`}>{engine}</option>
+                                                            <option key={engine} value={`${engine} (Gasolina)`} className="bg-black text-white ml-2">{engine}</option>
                                                         ))}
                                                     </optgroup>
                                                 )}

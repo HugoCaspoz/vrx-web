@@ -3,6 +3,7 @@ import { NextResponse } from "next/server";
 import Stripe from "stripe";
 import { Resend } from "resend";
 import { getOrderConfirmationHtml } from "@/lib/email";
+import { prisma } from "@/lib/prisma";
 
 const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!, {
   apiVersion: "2025-12-15.clover",
@@ -47,16 +48,36 @@ export async function POST(req: Request) {
     const customerEmail = session.customer_details?.email;
     const customerName = session.customer_details?.name || "Cliente";
     
-    // Format items for email
+    // Format items for email and DB
     const items = lineItemsWithDetails.data.map(item => ({
         name: item.description || "Producto",
         quantity: item.quantity || 1,
-        amount: (item.amount_total / 100)
+        price: (item.amount_total / 100) // Renamed from amount to price
     }));
 
     if (customerEmail) {
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
         const sessionWithShipping = session as any;
+        const shippingDetails = sessionWithShipping.shipping_details?.address;
+
+        // Save Order to DB
+        await prisma.order.create({
+            data: {
+                stripeSessionId: session.id,
+                customerName: customerName,
+                customerEmail: customerEmail,
+                totalAmount: (session.amount_total || 0) / 100,
+                status: "paid",
+                shippingAddress: shippingDetails ? JSON.stringify(shippingDetails) : null,
+                items: {
+                    create: items.map(item => ({
+                        name: item.name,
+                        quantity: item.quantity,
+                        price: item.price
+                    }))
+                }
+            }
+        });
 
         await resend.emails.send({
             from: 'VRX Performance <onboarding@resend.dev>', // Update to verified domain in prod
@@ -68,11 +89,11 @@ export async function POST(req: Request) {
                 customerEmail,
                 total: (session.amount_total || 0) / 100,
                 items,
-                shippingAddress: sessionWithShipping.shipping_details?.address ? {
-                    line1: sessionWithShipping.shipping_details.address.line1!,
-                    line2: sessionWithShipping.shipping_details.address.line2,
-                    city: sessionWithShipping.shipping_details.address.city!,
-                    postal_code: sessionWithShipping.shipping_details.address.postal_code!,
+                shippingAddress: shippingDetails ? {
+                    line1: shippingDetails.line1!,
+                    line2: shippingDetails.line2,
+                    city: shippingDetails.city!,
+                    postal_code: shippingDetails.postal_code!,
                 } : undefined
             })
         });

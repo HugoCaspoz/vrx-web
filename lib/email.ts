@@ -104,7 +104,7 @@ export function getReminderHtml(booking: EmailBookingDetails) {
 interface OrderItem {
     name: string;
     quantity: number;
-    amount: number; // in euros
+    price: number; // Renamed from amount to match Prisma
 }
 
 interface OrderDetails {
@@ -125,7 +125,7 @@ export function getOrderConfirmationHtml(order: OrderDetails) {
     const itemsHtml = order.items.map(item => `
         <div style="border-bottom: 1px solid #eee; padding: 10px 0;">
             <p style="margin: 0; font-weight: bold;">${item.name}</p>
-            <p style="margin: 0; font-size: 14px; color: #555;">Cantidad: ${item.quantity} - ${(item.amount).toFixed(2)}€</p>
+            <p style="margin: 0; font-size: 14px; color: #555;">Cantidad: ${item.quantity} - ${(item.price).toFixed(2)}€</p>
         </div>
     `).join('');
 
@@ -156,6 +156,62 @@ export function getOrderConfirmationHtml(order: OrderDetails) {
                 ${addressHtml}
 
                 <p style="margin-top: 30px;">Recibirás otro correo cuando tu pedido haya sido enviado.</p>
+                <p style="text-align: center; margin-top: 30px; font-size: 12px; color: #888;">&copy; VRX Performance</p>
+            </div>
+        </div>
+    `;
+}
+
+interface ShippingConfirmationDetails {
+    customerName: string;
+    orderId: string;
+    trackingNumber?: string;
+    items: OrderItem[];
+    shippingAddress: {
+        line1: string;
+        line2?: string | null;
+        city: string;
+        postal_code: string;
+    } | null;
+}
+
+export function getShippingConfirmationHtml(details: ShippingConfirmationDetails) {
+    const itemsHtml = details.items.map(item => `
+        <li style="margin-bottom: 5px;">${item.name} (x${item.quantity})</li>
+    `).join('');
+
+    const addressHtml = details.shippingAddress ? `
+        <p style="margin-bottom: 5px;"><strong>Dirección de entrega:</strong></p>
+        <p style="margin: 0;">${details.shippingAddress.line1}</p>
+        ${details.shippingAddress.line2 ? `<p style="margin: 0;">${details.shippingAddress.line2}</p>` : ''}
+        <p style="margin: 0;">${details.shippingAddress.postal_code}, ${details.shippingAddress.city}</p>
+    ` : '';
+
+    return `
+        <div style="font-family: Arial, sans-serif; background-color: #f9f9f9; padding: 20px;">
+            <div style="max-width: 600px; margin: 0 auto; background-color: white; padding: 20px; border-radius: 10px; box-shadow: 0 4px 6px rgba(0,0,0,0.1);">
+                <h1 style="color: #28a745; text-align: center;">¡Tu pedido ha sido enviado!</h1>
+                <p>Hola <strong>${details.customerName}</strong>,</p>
+                <p>Tu pedido <strong>#${details.orderId.slice(-6)}</strong> ha salido de nuestras instalaciones.</p>
+                
+                ${details.trackingNumber ? `
+                    <div style="background-color: #e8f5e9; padding: 15px; border-radius: 5px; margin: 20px 0; border-left: 5px solid #28a745;">
+                        <p style="margin: 0; font-weight: bold;">Número de Seguimiento:</p>
+                        <p style="margin: 5px 0 0 0; font-family: monospace; font-size: 16px;">${details.trackingNumber}</p>
+                    </div>
+                ` : ''}
+
+                <div style="margin: 20px 0;">
+                    <h3>Productos enviados:</h3>
+                    <ul>
+                        ${itemsHtml}
+                    </ul>
+                </div>
+
+                <div style="border-top: 1px solid #eee; padding-top: 20px; margin-top: 20px;">
+                    ${addressHtml}
+                </div>
+
                 <p style="text-align: center; margin-top: 30px; font-size: 12px; color: #888;">&copy; VRX Performance</p>
             </div>
         </div>

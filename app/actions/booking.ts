@@ -42,6 +42,21 @@ export async function createBooking(formData: any) { // eslint-disable-line @typ
 
 export async function getUnavailableTimes(date: string) {
     try {
+        // 1. Check if the date is fully blocked by Admin
+        const blockedDate = await prisma.blockedDate.findUnique({
+            where: { date: date }
+        });
+
+        if (blockedDate) {
+            // Return ALL possible time slots to disable everything (or handle in UI with a specific flag)
+            // For now, returning a list of all hours usually available in the frontend ensures they are disabled
+            return [
+                "09:00", "10:00", "11:00", "12:00", "13:00", 
+                "15:00", "16:00", "17:00", "18:00"
+            ]; 
+        }
+
+        // 2. Check existing bookings
         const bookings = await prisma.booking.findMany({
             where: {
                 date: date,

@@ -47,7 +47,17 @@ interface EmailBookingDetails {
     serviceType?: string;
 }
 
+const serviceNames: Record<string, string> = {
+    repro: "Reprogramación de Software",
+    banco: "Prueba en Banco de Potencia",
+    mecanica: "Mecánica General",
+    mantenimiento: "Mantenimiento / Revisión",
+    diagnosis: "Diagnosis Avanzada"
+};
+
 export function getConfirmationHtml(booking: EmailBookingDetails) {
+    const serviceName = serviceNames[booking.serviceType || ""] || booking.serviceType;
+
     return `
         <div style="font-family: Arial, sans-serif; background-color: #f9f9f9; padding: 20px;">
             <div style="max-width: 600px; margin: 0 auto; background-color: white; padding: 20px; border-radius: 10px; box-shadow: 0 4px 6px rgba(0,0,0,0.1);">
@@ -60,7 +70,7 @@ export function getConfirmationHtml(booking: EmailBookingDetails) {
                     <p style="margin: 5px 0;"><strong>Hora:</strong> ${booking.time}</p>
                     <p style="margin: 5px 0;"><strong>Vehículo:</strong> ${booking.carMake} ${booking.carModel}</p>
                     <p style="margin: 5px 0;"><strong>Motor:</strong> ${booking.carEngine}</p>
-                    <p style="margin: 5px 0;"><strong>Servicio:</strong> ${booking.serviceType}</p>
+                    <p style="margin: 5px 0;"><strong>Servicio:</strong> ${serviceName}</p>
                 </div>
 
                 <p>Si necesitas modificar o cancelar tu cita, por favor contáctanos lo antes posible.</p>

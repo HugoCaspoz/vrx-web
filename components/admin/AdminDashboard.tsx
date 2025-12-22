@@ -2,14 +2,16 @@
 
 import { useState, useMemo } from "react";
 import { BookingTable } from "./BookingTable";
+import BlockedDatesManager from "./BlockedDatesManager";
 import { Filter, Calendar } from "lucide-react";
 
 interface AdminDashboardProps {
     bookings: any[]; // eslint-disable-line @typescript-eslint/no-explicit-any
+    blockedDates: any[]; // eslint-disable-line @typescript-eslint/no-explicit-any
     user: any; // eslint-disable-line @typescript-eslint/no-explicit-any
 }
 
-export default function AdminDashboard({ bookings: initialBookings, user }: AdminDashboardProps) {
+export default function AdminDashboard({ bookings: initialBookings, blockedDates, user }: AdminDashboardProps) {
     const [statusFilter, setStatusFilter] = useState("all");
     const [dateFilter, setDateFilter] = useState("all"); // 'all', 'week', 'month', 'custom'
     const [customStart, setCustomStart] = useState("");
@@ -147,6 +149,10 @@ export default function AdminDashboard({ bookings: initialBookings, user }: Admi
 
             {/* Table */}
             <BookingTable bookings={filteredBookings} />
+
+            {/* Availability Manager */}
+            {/* eslint-disable-next-line @typescript-eslint/no-explicit-any */}
+            <BlockedDatesManager blockedDates={blockedDates} />
         </div>
     );
 }

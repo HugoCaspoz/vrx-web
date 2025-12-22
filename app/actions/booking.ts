@@ -2,6 +2,7 @@
 
 import { prisma } from "@/lib/prisma";
 import { revalidatePath } from "next/cache";
+import { sendEmail, getConfirmationHtml } from "@/lib/email";
 
 export async function createBooking(formData: any) { // eslint-disable-line @typescript-eslint/no-explicit-any
     try {
@@ -14,13 +15,25 @@ export async function createBooking(formData: any) { // eslint-disable-line @typ
                 carEngine: formData.carEngine,
                 fuelType: formData.carEngine.toLowerCase().includes("diésel") || formData.carEngine.toLowerCase().includes("diesel") ? "diesel" : "gasolina",
                 serviceType: formData.serviceType,
+                serviceType: formData.serviceType,
                 userName: formData.name,
                 userPhone: formData.phone,
+                userEmail: formData.email,
                 status: "pending",
             },
         });
 
         revalidatePath("/admin");
+
+        // Send Confirmation Email
+        if (formData.userEmail) {
+            await sendEmail({
+                to: formData.userEmail,
+                subject: 'Confirmación de Reserva - VRX Performance',
+                html: getConfirmationHtml({ ...formData, ...booking, date: formData.date, time: formData.time })
+            });
+        }
+
         return { success: true, bookingId: booking.id };
     } catch (error) {
         console.error("Error creating booking:", error);

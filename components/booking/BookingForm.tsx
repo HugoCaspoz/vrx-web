@@ -46,7 +46,8 @@ export function BookingForm() {
         carEngine: "", // Stores Selector value for Euro cars
         serviceType: "repro",
         name: "",
-        phone: ""
+        phone: "",
+        email: ""
     });
 
     useEffect(() => {
@@ -429,6 +430,18 @@ export function BookingForm() {
                                         className="w-full mt-1 bg-white/5 border border-white/10 rounded-lg p-3 focus:border-primary outline-none"
                                     />
                                 </div>
+                            </div>
+
+                            <div>
+                                <label className="text-xs font-bold text-gray-500 uppercase">Email (para confirmación y recordatorio)</label>
+                                <input
+                                    required
+                                    type="email"
+                                    value={formData.email}
+                                    onChange={(e) => setFormData({ ...formData, email: e.target.value })}
+                                    className="w-full mt-1 bg-white/5 border border-white/10 rounded-lg p-3 focus:border-primary outline-none"
+                                    placeholder="ejemplo@correo.com"
+                                />
                             </div>
 
 

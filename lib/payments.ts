@@ -42,6 +42,12 @@ export async function createCheckoutSession(cart: any[]) { // eslint-disable-lin
             line_items: lineItems,
             success_url: `${origin}/store?success=true`,
             cancel_url: `${origin}/store?canceled=true`,
+            shipping_address_collection: {
+                allowed_countries: ["ES"], // Add more countries if needed (e.g. ["ES", "PT", "FR"])
+            },
+            phone_number_collection: {
+                enabled: true,
+            },
         });
 
         return { url: session.url };

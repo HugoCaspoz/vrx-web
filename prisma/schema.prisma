@@ -15,6 +15,7 @@ model Booking {
   carMake     String
   carModel    String
   carEngine   String
+  fuelType    String   @default("gasolina")
   serviceType String
   userName    String
   userPhone   String

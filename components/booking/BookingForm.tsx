@@ -20,6 +20,9 @@ export function BookingForm() {
     const [models, setModels] = useState<string[]>([]);
     const [loadingMakes, setLoadingMakes] = useState(false);
     const [loadingModels, setLoadingModels] = useState(false);
+    
+    // Popular brands to show at the top
+    const POPULAR_MAKES = ["BMW", "Audi", "Mercedes-Benz", "Volkswagen", "Porsche", "SEAT"];
 
     const [formData, setFormData] = useState({
         date: "",
@@ -27,6 +30,7 @@ export function BookingForm() {
         carMake: "",
         carModel: "",
         carEngine: "",
+        fuelType: "diesel",
         serviceType: "repro",
         name: "",
         phone: ""
@@ -38,11 +42,14 @@ export function BookingForm() {
             try {
                 const response = await fetch("https://vpic.nhtsa.dot.gov/api/vehicles/GetMakesForVehicleType/car?format=json");
                 const data = await response.json();
-                const sortedMakes = data.Results
-                    .map((item: any) => item.MakeName.trim()) // eslint-disable-line @typescript-eslint/no-explicit-any
+                const allMakes = data.Results.map((item: any) => item.MakeName.trim()); // eslint-disable-line @typescript-eslint/no-explicit-any
+                
+                // Filter and Sort: Popular first, then others alphabetically
+                const otherMakes = [...new Set(allMakes)]
+                    .filter((m: any) => !POPULAR_MAKES.includes(m)) // eslint-disable-line @typescript-eslint/no-explicit-any
                     .sort();
-                // Remove duplicates if any
-                setMakes([...new Set(sortedMakes)] as string[]);
+                
+                setMakes([...POPULAR_MAKES, ...otherMakes] as string[]);
             } catch (error) {
                 console.error("Error fetching makes:", error);
             } finally {
@@ -237,7 +244,7 @@ export function BookingForm() {
                             </div>
 
                             <div>
-                                <label className="text-xs font-bold text-gray-500 uppercase">Motorización</label>
+                                <label className="text-xs font-bold text-gray-500 uppercase">Motorización (Detalles)</label>
                                 <input
                                     required
                                     type="text"
@@ -248,18 +255,33 @@ export function BookingForm() {
                                 />
                             </div>
 
-                            <div>
-                                <label className="text-xs font-bold text-gray-500 uppercase">Tipo de Servicio</label>
-                                <select
-                                    value={formData.serviceType}
-                                    onChange={(e) => setFormData({ ...formData, serviceType: e.target.value })}
-                                    className="w-full mt-1 bg-white/5 border border-white/10 rounded-lg p-3 focus:border-primary outline-none text-white [&>option]:bg-black"
-                                >
-                                    <option value="repro">Reprogramación (Stage 1/2/3)</option>
-                                    <option value="banco">Prueba en Banco de Potencia</option>
-                                    <option value="mecanica">Mecánica / Piezas</option>
-                                    <option value="mantenimiento">Mantenimiento</option>
-                                </select>
+                            <div className="grid grid-cols-2 gap-4">
+                                <div>
+                                    <label className="text-xs font-bold text-gray-500 uppercase">Combustible</label>
+                                    <select
+                                        value={formData.fuelType}
+                                        onChange={(e) => setFormData({ ...formData, fuelType: e.target.value })}
+                                        className="w-full mt-1 bg-white/5 border border-white/10 rounded-lg p-3 focus:border-primary outline-none text-white [&>option]:bg-black"
+                                    >
+                                        <option value="diesel">Diésel</option>
+                                        <option value="gasolina">Gasolina</option>
+                                        <option value="hibrido">Híbrido</option>
+                                        <option value="electrico">Eléctrico</option>
+                                    </select>
+                                </div>
+                                <div>
+                                    <label className="text-xs font-bold text-gray-500 uppercase">Tipo de Servicio</label>
+                                    <select
+                                        value={formData.serviceType}
+                                        onChange={(e) => setFormData({ ...formData, serviceType: e.target.value })}
+                                        className="w-full mt-1 bg-white/5 border border-white/10 rounded-lg p-3 focus:border-primary outline-none text-white [&>option]:bg-black"
+                                    >
+                                        <option value="repro">Reprogramación</option>
+                                        <option value="banco">Banco de Potencia</option>
+                                        <option value="mecanica">Mecánica / Piezas</option>
+                                        <option value="mantenimiento">Mantenimiento</option>
+                                    </select>
+                                </div>
                             </div>
 
                             <div className="grid grid-cols-2 gap-4">

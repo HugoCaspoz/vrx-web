@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { Calendar, Clock, Car, CheckCircle } from "lucide-react";
 import { cn } from "@/lib/utils";
@@ -16,6 +16,11 @@ import { createBooking } from "@/app/actions/booking";
 export function BookingForm() {
     const [step, setStep] = useState<Step>("date");
     // const [isSubmitting, setIsSubmitting] = useState(false);
+    const [makes, setMakes] = useState<string[]>([]);
+    const [models, setModels] = useState<string[]>([]);
+    const [loadingMakes, setLoadingMakes] = useState(false);
+    const [loadingModels, setLoadingModels] = useState(false);
+
     const [formData, setFormData] = useState({
         date: "",
         time: "",
@@ -26,6 +31,48 @@ export function BookingForm() {
         name: "",
         phone: ""
     });
+
+    useEffect(() => {
+        const fetchMakes = async () => {
+            setLoadingMakes(true);
+            try {
+                const response = await fetch("https://vpic.nhtsa.dot.gov/api/vehicles/GetMakesForVehicleType/car?format=json");
+                const data = await response.json();
+                const sortedMakes = data.Results
+                    .map((item: any) => item.MakeName.trim()) // eslint-disable-line @typescript-eslint/no-explicit-any
+                    .sort();
+                // Remove duplicates if any
+                setMakes([...new Set(sortedMakes)] as string[]);
+            } catch (error) {
+                console.error("Error fetching makes:", error);
+            } finally {
+                setLoadingMakes(false);
+            }
+        };
+        fetchMakes();
+    }, []);
+
+    const handleMakeChange = async (e: React.ChangeEvent<HTMLSelectElement>) => {
+        const selectedMake = e.target.value;
+        setFormData({ ...formData, carMake: selectedMake, carModel: "" });
+        setModels([]);
+
+        if (selectedMake) {
+            setLoadingModels(true);
+            try {
+                const response = await fetch(`https://vpic.nhtsa.dot.gov/api/vehicles/GetModelsForMake/${selectedMake}?format=json`);
+                const data = await response.json();
+                const sortedModels = data.Results
+                    .map((item: any) => item.Model_Name.trim()) // eslint-disable-line @typescript-eslint/no-explicit-any
+                    .sort();
+                 setModels([...new Set(sortedModels)] as string[]);
+            } catch (error) {
+                console.error("Error fetching models:", error);
+            } finally {
+                setLoadingModels(false);
+            }
+        }
+    };
 
     const nextStep = (next: Step) => setStep(next);
 
@@ -151,25 +198,41 @@ export function BookingForm() {
                             <div className="grid grid-cols-2 gap-4">
                                 <div>
                                     <label className="text-xs font-bold text-gray-500 uppercase">Marca</label>
-                                    <input
+                                    <select
                                         required
-                                        type="text"
                                         value={formData.carMake}
-                                        onChange={(e) => setFormData({ ...formData, carMake: e.target.value })}
-                                        className="w-full mt-1 bg-white/5 border border-white/10 rounded-lg p-3 focus:border-primary outline-none"
-                                        placeholder="Ej. BMW"
-                                    />
+                                        onChange={handleMakeChange}
+                                        disabled={loadingMakes}
+                                        className="w-full mt-1 bg-white/5 border border-white/10 rounded-lg p-3 focus:border-primary outline-none text-white [&>option]:bg-black"
+                                    >
+                                        <option value="">Seleccionar</option>
+                                        {loadingMakes ? (
+                                            <option>Cargando...</option>
+                                        ) : (
+                                            makes.map((make) => (
+                                                <option key={make} value={make}>{make}</option>
+                                            ))
+                                        )}
+                                    </select>
                                 </div>
                                 <div>
                                     <label className="text-xs font-bold text-gray-500 uppercase">Modelo</label>
-                                    <input
+                                    <select
                                         required
-                                        type="text"
                                         value={formData.carModel}
                                         onChange={(e) => setFormData({ ...formData, carModel: e.target.value })}
-                                        className="w-full mt-1 bg-white/5 border border-white/10 rounded-lg p-3 focus:border-primary outline-none"
-                                        placeholder="Ej. M4"
-                                    />
+                                        disabled={!formData.carMake || loadingModels}
+                                        className="w-full mt-1 bg-white/5 border border-white/10 rounded-lg p-3 focus:border-primary outline-none text-white [&>option]:bg-black disabled:opacity-50"
+                                    >
+                                        <option value="">Seleccionar</option>
+                                         {loadingModels ? (
+                                            <option>Cargando...</option>
+                                        ) : (
+                                            models.map((model) => (
+                                                <option key={model} value={model}>{model}</option>
+                                            ))
+                                        )}
+                                    </select>
                                 </div>
                             </div>
 

@@ -17,7 +17,7 @@ export async function sendEmail({ to, subject, html }: EmailProps) {
 
     try {
         const { data, error } = await resend.emails.send({
-            from: 'VRX Performance <noreply@vrxperformance.com>', // Or your verified domain
+            from: 'VRX Performance <onboarding@resend.dev>', // Use onboarding domain for testing
             to: [to],
             subject: subject,
             html: html,

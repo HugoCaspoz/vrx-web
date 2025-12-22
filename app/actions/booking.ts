@@ -25,9 +25,9 @@ export async function createBooking(formData: any) { // eslint-disable-line @typ
         revalidatePath("/admin");
 
         // Send Confirmation Email
-        if (formData.userEmail) {
+        if (formData.email) {
             await sendEmail({
-                to: formData.userEmail,
+                to: formData.email,
                 subject: 'Confirmación de Reserva - VRX Performance',
                 html: getConfirmationHtml({ ...formData, ...booking, date: formData.date, time: formData.time })
             });

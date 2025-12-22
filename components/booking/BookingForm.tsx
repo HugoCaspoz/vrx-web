@@ -12,24 +12,36 @@ const TIME_SLOTS = [
 ];
 
 import { createBooking } from "@/app/actions/booking";
+import { EURO_CARS } from "@/lib/euro-cars";
 
 export function BookingForm() {
     const [step, setStep] = useState<Step>("date");
     // const [isSubmitting, setIsSubmitting] = useState(false);
     const [makes, setMakes] = useState<string[]>([]);
+    
+    // Generic API Models
     const [models, setModels] = useState<string[]>([]);
+    
+    // Euro Car States
+    const [euroFamilies, setEuroFamilies] = useState<string[]>([]);
+    const [selectedFamily, setSelectedFamily] = useState("");
+    const [euroGenerations, setEuroGenerations] = useState<string[]>([]);
+    const [selectedGeneration, setSelectedGeneration] = useState("");
+    const [euroEngines, setEuroEngines] = useState<readonly string[]>([]);
+    
+    // Loading states
     const [loadingMakes, setLoadingMakes] = useState(false);
     const [loadingModels, setLoadingModels] = useState(false);
     
     // Popular brands to show at the top
-    const POPULAR_MAKES = ["BMW", "Audi", "Mercedes-Benz", "Volkswagen", "Porsche", "SEAT"];
+    const POPULAR_MAKES = Object.keys(EURO_CARS);
 
     const [formData, setFormData] = useState({
         date: "",
         time: "",
         carMake: "",
-        carModel: "",
-        carEngine: "",
+        carModel: "", // Stores "Model-Generation" for Euro cars
+        carEngine: "", // Stores Selector value for Euro cars
         fuelType: "diesel",
         serviceType: "repro",
         name: "",
@@ -61,10 +73,24 @@ export function BookingForm() {
 
     const handleMakeChange = async (e: React.ChangeEvent<HTMLSelectElement>) => {
         const selectedMake = e.target.value;
-        setFormData({ ...formData, carMake: selectedMake, carModel: "" });
+        setFormData({ ...formData, carMake: selectedMake, carModel: "", carEngine: "" });
+        
+        // Reset sub - selectors
         setModels([]);
+        setEuroFamilies([]);
+        setSelectedFamily("");
+        setEuroGenerations([]);
+        setSelectedGeneration("");
+        setEuroEngines([]);
 
-        if (selectedMake) {
+        if (!selectedMake) return;
+
+        // Check if it is a Euro Car
+        if (selectedMake in EURO_CARS) {
+             const makeData = EURO_CARS[selectedMake as keyof typeof EURO_CARS];
+             setEuroFamilies(Object.keys(makeData.models));
+        } else {
+             // Fetch from API
             setLoadingModels(true);
             try {
                 const response = await fetch(`https://vpic.nhtsa.dot.gov/api/vehicles/GetModelsForMake/${selectedMake}?format=json`);
@@ -78,6 +104,33 @@ export function BookingForm() {
             } finally {
                 setLoadingModels(false);
             }
+        }
+    };
+    
+    const handleEuroFamilyChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
+        const family = e.target.value;
+        setSelectedFamily(family);
+        setSelectedGeneration("");
+        setEuroEngines([]);
+        setFormData({...formData, carModel: family}); // Partial model
+
+        if (family && formData.carMake in EURO_CARS) {
+            const makeData = EURO_CARS[formData.carMake as keyof typeof EURO_CARS];
+            const generations = Object.keys(makeData.models[family as keyof typeof makeData.models]);
+            setEuroGenerations(generations);
+        }
+    };
+
+    const handleEuroGenerationChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
+        const generation = e.target.value;
+        setSelectedGeneration(generation);
+        setFormData({...formData, carModel: `${selectedFamily} ${generation}`}); // Full model string e.g. "Serie 3 E46 (1998-2006)"
+        
+        if (generation && formData.carMake in EURO_CARS && selectedFamily) {
+             const makeData = EURO_CARS[formData.carMake as keyof typeof EURO_CARS];
+             // @ts-ignore
+             const engines = makeData.models[selectedFamily][generation];
+             setEuroEngines(engines);
         }
     };
 
@@ -224,35 +277,76 @@ export function BookingForm() {
                                 </div>
                                 <div>
                                     <label className="text-xs font-bold text-gray-500 uppercase">Modelo</label>
-                                    <select
-                                        required
-                                        value={formData.carModel}
-                                        onChange={(e) => setFormData({ ...formData, carModel: e.target.value })}
-                                        disabled={!formData.carMake || loadingModels}
-                                        className="w-full mt-1 bg-white/5 border border-white/10 rounded-lg p-3 focus:border-primary outline-none text-white [&>option]:bg-black disabled:opacity-50"
-                                    >
-                                        <option value="">Seleccionar</option>
-                                         {loadingModels ? (
-                                            <option>Cargando...</option>
-                                        ) : (
-                                            models.map((model) => (
-                                                <option key={model} value={model}>{model}</option>
-                                            ))
-                                        )}
-                                    </select>
+                                    {/* CONDITIONAL RENDERING FOR MODEL SELECTOR */}
+                                    {formData.carMake && formData.carMake in EURO_CARS ? (
+                                        <div className="flex flex-col gap-2">
+                                            <select
+                                                required
+                                                value={selectedFamily}
+                                                onChange={handleEuroFamilyChange}
+                                                className="w-full mt-1 bg-white/5 border border-white/10 rounded-lg p-3 focus:border-primary outline-none text-white [&>option]:bg-black"
+                                            >
+                                                <option value="">Familia (Ej. Serie 3)</option>
+                                                {euroFamilies.map(f => <option key={f} value={f}>{f}</option>)}
+                                            </select>
+                                            
+                                            {selectedFamily && (
+                                                <select
+                                                    required
+                                                    value={selectedGeneration}
+                                                    onChange={handleEuroGenerationChange}
+                                                    className="w-full bg-white/5 border border-white/10 rounded-lg p-3 focus:border-primary outline-none text-white [&>option]:bg-black"
+                                                >
+                                                    <option value="">Generación / Chasis</option>
+                                                     {euroGenerations.map(g => <option key={g} value={g}>{g}</option>)}
+                                                </select>
+                                            )}
+                                        </div>
+                                    ) : (
+                                        <select
+                                            required
+                                            value={formData.carModel}
+                                            onChange={(e) => setFormData({ ...formData, carModel: e.target.value })}
+                                            disabled={!formData.carMake || loadingModels}
+                                            className="w-full mt-1 bg-white/5 border border-white/10 rounded-lg p-3 focus:border-primary outline-none text-white [&>option]:bg-black disabled:opacity-50"
+                                        >
+                                            <option value="">Seleccionar</option>
+                                             {loadingModels ? (
+                                                <option>Cargando...</option>
+                                            ) : (
+                                                models.map((model) => (
+                                                    <option key={model} value={model}>{model}</option>
+                                                ))
+                                            )}
+                                        </select>
+                                    )}
                                 </div>
                             </div>
 
                             <div>
-                                <label className="text-xs font-bold text-gray-500 uppercase">Motorización (Detalles)</label>
-                                <input
-                                    required
-                                    type="text"
-                                    value={formData.carEngine}
-                                    onChange={(e) => setFormData({ ...formData, carEngine: e.target.value })}
-                                    className="w-full mt-1 bg-white/5 border border-white/10 rounded-lg p-3 focus:border-primary outline-none"
-                                    placeholder="Ej. 3.0 Biturbo 431CV"
-                                />
+                                <label className="text-xs font-bold text-gray-500 uppercase">Motorización</label>
+                                {formData.carMake && formData.carMake in EURO_CARS && selectedGeneration ? (
+                                     <select
+                                        required
+                                        value={formData.carEngine}
+                                        onChange={(e) => setFormData({ ...formData, carEngine: e.target.value })}
+                                        className="w-full mt-1 bg-white/5 border border-white/10 rounded-lg p-3 focus:border-primary outline-none text-white [&>option]:bg-black"
+                                    >
+                                        <option value="">Seleccionar Motor</option>
+                                        {euroEngines.map(engine => (
+                                            <option key={engine} value={engine}>{engine}</option>
+                                        ))}
+                                    </select>
+                                ) : (
+                                    <input
+                                        required
+                                        type="text"
+                                        value={formData.carEngine}
+                                        onChange={(e) => setFormData({ ...formData, carEngine: e.target.value })}
+                                        className="w-full mt-1 bg-white/5 border border-white/10 rounded-lg p-3 focus:border-primary outline-none"
+                                        placeholder="Ej. 3.0 Biturbo 431CV"
+                                    />
+                                )}
                             </div>
 
                             <div className="grid grid-cols-2 gap-4">

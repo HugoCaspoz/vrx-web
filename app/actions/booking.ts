@@ -27,3 +27,24 @@ export async function createBooking(formData: any) { // eslint-disable-line @typ
         return { success: false, error: "Error al crear la reserva" };
     }
 }
+
+export async function getUnavailableTimes(date: string) {
+    try {
+        const bookings = await prisma.booking.findMany({
+            where: {
+                date: date,
+                status: {
+                    not: "cancelled"
+                }
+            },
+            select: {
+                time: true
+            }
+        });
+
+        return bookings.map(b => b.time);
+    } catch (error) {
+        console.error("Error fetching unavailable times:", error);
+        return [];
+    }
+}

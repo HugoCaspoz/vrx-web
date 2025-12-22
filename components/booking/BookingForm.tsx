@@ -11,7 +11,7 @@ const TIME_SLOTS = [
     "09:00", "10:30", "12:00", "15:00", "16:30", "18:00"
 ];
 
-import { createBooking } from "@/app/actions/booking";
+import { createBooking, getUnavailableTimes } from "@/app/actions/booking";
 import { EURO_CARS } from "@/lib/euro-cars";
 
 const POPULAR_MAKES = Object.keys(EURO_CARS);
@@ -35,6 +35,7 @@ export function BookingForm() {
     // Loading states
     const [loadingMakes, setLoadingMakes] = useState(false);
     const [loadingModels, setLoadingModels] = useState(false);
+    const [unavailableSlots, setUnavailableSlots] = useState<string[]>([]);
     
 
     const [formData, setFormData] = useState({
@@ -47,6 +48,18 @@ export function BookingForm() {
         name: "",
         phone: ""
     });
+
+    useEffect(() => {
+        const fetchUnavailable = async () => {
+            if (formData.date) {
+               const slots = await getUnavailableTimes(formData.date);
+               setUnavailableSlots(slots);
+            } else {
+                setUnavailableSlots([]);
+            }
+        };
+        fetchUnavailable();
+    }, [formData.date]);
 
     useEffect(() => {
         const fetchMakes = async () => {
@@ -187,6 +200,7 @@ export function BookingForm() {
                         </h2>
                         <input
                             type="date"
+                            min={new Date().toISOString().split("T")[0]}
                             className="w-full bg-white/5 border border-white/10 rounded-lg p-4 h-[60px] text-white text-lg focus:border-primary outline-none transition-colors appearance-none [&::-webkit-calendar-picker-indicator]:invert"
                             onChange={(e) => setFormData({ ...formData, date: e.target.value })}
                             value={formData.date}
@@ -215,20 +229,26 @@ export function BookingForm() {
                             <Clock className="text-primary" /> ELIGE UNA HORA
                         </h2>
                         <div className="grid grid-cols-3 gap-3">
-                            {TIME_SLOTS.map((slot) => (
-                                <button
-                                    key={slot}
-                                    onClick={() => setFormData({ ...formData, time: slot })}
-                                    className={cn(
-                                        "p-3 rounded-lg border transition-all duration-200",
-                                        formData.time === slot
-                                            ? "bg-primary text-white border-primary font-bold shadow-[0_0_15px_rgba(255,0,0,0.4)]"
-                                            : "border-white/10 hover:border-primary/50 hover:bg-white/5"
-                                    )}
-                                >
-                                    {slot}
-                                </button>
-                            ))}
+                            {TIME_SLOTS.map((slot) => {
+                                const isDisabled = unavailableSlots.includes(slot);
+                                return (
+                                    <button
+                                        key={slot}
+                                        disabled={isDisabled}
+                                        onClick={() => setFormData({ ...formData, time: slot })}
+                                        className={cn(
+                                            "p-3 rounded-lg border transition-all duration-200",
+                                            formData.time === slot
+                                                ? "bg-primary text-white border-primary font-bold shadow-[0_0_15px_rgba(255,0,0,0.4)]"
+                                                : isDisabled 
+                                                    ? "bg-white/5 border-white/5 text-gray-700 cursor-not-allowed decoration-slice line-through opacity-50"
+                                                    : "border-white/10 hover:border-primary/50 hover:bg-white/5"
+                                        )}
+                                    >
+                                        {slot}
+                                    </button>
+                                );
+                            })}
                         </div>
                         <div className="mt-auto flex justify-between">
                             <button onClick={() => setStep("date")} className="text-gray-400 hover:text-white uppercase font-bold text-sm">Atrás</button>

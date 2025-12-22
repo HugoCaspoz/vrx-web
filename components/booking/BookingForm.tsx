@@ -340,19 +340,19 @@ export function BookingForm() {
                                             ))
                                         ) : (
                                             <>
-                                                {/* @ts-expect-error - Dynamic access to optional properties */}
+                                                {/* @ts-expect-error - Dynamic access to optional diesel property */}
                                                 {euroEngines.diesel && euroEngines.diesel.length > 0 && (
                                                     <optgroup label="DIÉSEL">
-                                                        {/* @ts-expect-error */}
+                                                        {/* @ts-expect-error - Dynamic mapping of diesel engines */}
                                                         {euroEngines.diesel.map((engine: string) => (
                                                             <option key={engine} value={`${engine} (Diésel)`}>{engine}</option>
                                                         ))}
                                                     </optgroup>
                                                 )}
-                                                {/* @ts-expect-error - Dynamic access to optional properties */}
+                                                {/* @ts-expect-error - Dynamic access to optional gas property */}
                                                 {euroEngines.gas && euroEngines.gas.length > 0 && (
                                                     <optgroup label="GASOLINA">
-                                                        {/* @ts-expect-error */}
+                                                        {/* @ts-expect-error - Dynamic mapping of gas engines */}
                                                         {euroEngines.gas.map((engine: string) => (
                                                             <option key={engine} value={`${engine} (Gasolina)`}>{engine}</option>
                                                         ))}

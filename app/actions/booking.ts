@@ -5,6 +5,7 @@ import { revalidatePath } from "next/cache";
 import { sendEmail, getConfirmationHtml } from "@/lib/email";
 
 export async function createBooking(formData: any) { // eslint-disable-line @typescript-eslint/no-explicit-any
+    try {
         // Check if date is in the past
         const today = new Date();
         today.setHours(0, 0, 0, 0);

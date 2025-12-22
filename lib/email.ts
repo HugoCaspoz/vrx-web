@@ -35,12 +35,24 @@ export async function sendEmail({ to, subject, html }: EmailProps) {
     }
 }
 
-export function getConfirmationHtml(booking: any) {
+
+interface EmailBookingDetails {
+    userName?: string; // For reminder
+    name?: string; // For confirmation (formData)
+    date: string;
+    time: string;
+    carMake: string;
+    carModel: string;
+    carEngine?: string;
+    serviceType?: string;
+}
+
+export function getConfirmationHtml(booking: EmailBookingDetails) {
     return `
         <div style="font-family: Arial, sans-serif; background-color: #f9f9f9; padding: 20px;">
             <div style="max-width: 600px; margin: 0 auto; background-color: white; padding: 20px; border-radius: 10px; box-shadow: 0 4px 6px rgba(0,0,0,0.1);">
                 <h1 style="color: #333; text-align: center;">¡Reserva Confirmada!</h1>
-                <p>Hola <strong>${booking.name}</strong>,</p>
+                <p>Hola <strong>${booking.name || booking.userName}</strong>,</p>
                 <p>Tu cita en <strong>VRX Performance</strong> ha sido confirmada con éxito.</p>
                 
                 <div style="background-color: #f0f0f0; padding: 15px; border-radius: 5px; margin: 20px 0;">
@@ -58,7 +70,7 @@ export function getConfirmationHtml(booking: any) {
     `;
 }
 
-export function getReminderHtml(booking: any) {
+export function getReminderHtml(booking: EmailBookingDetails) {
     return `
         <div style="font-family: Arial, sans-serif; background-color: #f9f9f9; padding: 20px;">
             <div style="max-width: 600px; margin: 0 auto; background-color: white; padding: 20px; border-radius: 10px; box-shadow: 0 4px 6px rgba(0,0,0,0.1);">

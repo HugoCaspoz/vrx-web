@@ -12,7 +12,7 @@ export async function createBooking(formData: any) { // eslint-disable-line @typ
                 carMake: formData.carMake,
                 carModel: formData.carModel,
                 carEngine: formData.carEngine,
-                fuelType: formData.fuelType,
+                fuelType: formData.carEngine.toLowerCase().includes("diésel") || formData.carEngine.toLowerCase().includes("diesel") ? "diesel" : "gasolina",
                 serviceType: formData.serviceType,
                 userName: formData.name,
                 userPhone: formData.phone,

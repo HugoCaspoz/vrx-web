@@ -29,7 +29,8 @@ export function BookingForm() {
     const [selectedFamily, setSelectedFamily] = useState("");
     const [euroGenerations, setEuroGenerations] = useState<string[]>([]);
     const [selectedGeneration, setSelectedGeneration] = useState("");
-    const [euroEngines, setEuroEngines] = useState<readonly string[]>([]);
+    // Engines can be a flat array or an object with fuel types
+    const [euroEngines, setEuroEngines] = useState<{ diesel?: string[], gas?: string[], hybrid?: string[], electric?: string[] } | readonly string[]>([]);
     
     // Loading states
     const [loadingMakes, setLoadingMakes] = useState(false);
@@ -42,7 +43,6 @@ export function BookingForm() {
         carMake: "",
         carModel: "", // Stores "Model-Generation" for Euro cars
         carEngine: "", // Stores Selector value for Euro cars
-        fuelType: "diesel",
         serviceType: "repro",
         name: "",
         phone: ""
@@ -333,9 +333,33 @@ export function BookingForm() {
                                         className="w-full mt-1 bg-white/5 border border-white/10 rounded-lg p-3 focus:border-primary outline-none text-white [&>option]:bg-black"
                                     >
                                         <option value="">Seleccionar Motor</option>
-                                        {euroEngines.map(engine => (
-                                            <option key={engine} value={engine}>{engine}</option>
-                                        ))}
+                                        <option value="">Seleccionar Motor</option>
+                                        {Array.isArray(euroEngines) ? (
+                                            euroEngines.map(engine => (
+                                                <option key={engine} value={engine}>{engine}</option>
+                                            ))
+                                        ) : (
+                                            <>
+                                                {/* @ts-expect-error - Dynamic access to optional properties */}
+                                                {euroEngines.diesel && euroEngines.diesel.length > 0 && (
+                                                    <optgroup label="DIÉSEL">
+                                                        {/* @ts-expect-error */}
+                                                        {euroEngines.diesel.map((engine: string) => (
+                                                            <option key={engine} value={`${engine} (Diésel)`}>{engine}</option>
+                                                        ))}
+                                                    </optgroup>
+                                                )}
+                                                {/* @ts-expect-error - Dynamic access to optional properties */}
+                                                {euroEngines.gas && euroEngines.gas.length > 0 && (
+                                                    <optgroup label="GASOLINA">
+                                                        {/* @ts-expect-error */}
+                                                        {euroEngines.gas.map((engine: string) => (
+                                                            <option key={engine} value={`${engine} (Gasolina)`}>{engine}</option>
+                                                        ))}
+                                                    </optgroup>
+                                                )}
+                                            </>
+                                        )}
                                     </select>
                                 ) : (
                                     <input
@@ -349,20 +373,7 @@ export function BookingForm() {
                                 )}
                             </div>
 
-                            <div className="grid grid-cols-2 gap-4">
-                                <div>
-                                    <label className="text-xs font-bold text-gray-500 uppercase">Combustible</label>
-                                    <select
-                                        value={formData.fuelType}
-                                        onChange={(e) => setFormData({ ...formData, fuelType: e.target.value })}
-                                        className="w-full mt-1 bg-white/5 border border-white/10 rounded-lg p-3 focus:border-primary outline-none text-white [&>option]:bg-black"
-                                    >
-                                        <option value="diesel">Diésel</option>
-                                        <option value="gasolina">Gasolina</option>
-                                        <option value="hibrido">Híbrido</option>
-                                        <option value="electrico">Eléctrico</option>
-                                    </select>
-                                </div>
+                            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                                 <div>
                                     <label className="text-xs font-bold text-gray-500 uppercase">Tipo de Servicio</label>
                                     <select

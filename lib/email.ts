@@ -100,3 +100,64 @@ export function getReminderHtml(booking: EmailBookingDetails) {
         </div>
     `;
 }
+
+interface OrderItem {
+    name: string;
+    quantity: number;
+    amount: number; // in euros
+}
+
+interface OrderDetails {
+    orderId: string;
+    customerName: string;
+    customerEmail: string;
+    shippingAddress?: {
+        line1: string;
+        line2?: string | null;
+        city: string;
+        postal_code: string;
+    };
+    items: OrderItem[];
+    total: number;
+}
+
+export function getOrderConfirmationHtml(order: OrderDetails) {
+    const itemsHtml = order.items.map(item => `
+        <div style="border-bottom: 1px solid #eee; padding: 10px 0;">
+            <p style="margin: 0; font-weight: bold;">${item.name}</p>
+            <p style="margin: 0; font-size: 14px; color: #555;">Cantidad: ${item.quantity} - ${(item.amount).toFixed(2)}€</p>
+        </div>
+    `).join('');
+
+    const addressHtml = order.shippingAddress ? `
+        <div style="background-color: #f0f0f0; padding: 15px; border-radius: 5px; margin: 20px 0;">
+            <p style="margin: 0 0 10px 0; font-weight: bold;">Dirección de Envío:</p>
+            <p style="margin: 0;">${order.shippingAddress.line1}</p>
+            ${order.shippingAddress.line2 ? `<p style="margin: 0;">${order.shippingAddress.line2}</p>` : ''}
+            <p style="margin: 0;">${order.shippingAddress.postal_code}, ${order.shippingAddress.city}</p>
+        </div>
+    ` : '';
+
+    return `
+        <div style="font-family: Arial, sans-serif; background-color: #f9f9f9; padding: 20px;">
+            <div style="max-width: 600px; margin: 0 auto; background-color: white; padding: 20px; border-radius: 10px; box-shadow: 0 4px 6px rgba(0,0,0,0.1);">
+                <h1 style="color: #333; text-align: center;">¡Pedido Recibido!</h1>
+                <p>Hola <strong>${order.customerName}</strong>,</p>
+                <p>Gracias por tu compra en <strong>VRX Performance</strong>. Estamos preparando tu pedido.</p>
+                
+                <h3 style="border-bottom: 2px solid #333; padding-bottom: 10px;">Detalles del Pedido #${order.orderId.slice(-6)}</h3>
+                
+                ${itemsHtml}
+                
+                <div style="text-align: right; margin-top: 20px; font-size: 18px;">
+                    <strong>Total: ${order.total.toFixed(2)}€</strong>
+                </div>
+
+                ${addressHtml}
+
+                <p style="margin-top: 30px;">Recibirás otro correo cuando tu pedido haya sido enviado.</p>
+                <p style="text-align: center; margin-top: 30px; font-size: 12px; color: #888;">&copy; VRX Performance</p>
+            </div>
+        </div>
+    `;
+}

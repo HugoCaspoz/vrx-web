@@ -151,7 +151,6 @@ export default function AdminDashboard({ bookings: initialBookings, blockedDates
             <BookingTable bookings={filteredBookings} />
 
             {/* Availability Manager */}
-            {/* eslint-disable-next-line @typescript-eslint/no-explicit-any */}
             <BlockedDatesManager blockedDates={blockedDates} />
         </div>
     );

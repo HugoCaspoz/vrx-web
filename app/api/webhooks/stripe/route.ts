@@ -55,6 +55,9 @@ export async function POST(req: Request) {
     }));
 
     if (customerEmail) {
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        const sessionWithShipping = session as any;
+
         await resend.emails.send({
             from: 'VRX Performance <onboarding@resend.dev>', // Update to verified domain in prod
             to: [customerEmail],
@@ -65,11 +68,11 @@ export async function POST(req: Request) {
                 customerEmail,
                 total: (session.amount_total || 0) / 100,
                 items,
-                shippingAddress: session.shipping_details?.address ? {
-                    line1: session.shipping_details.address.line1!,
-                    line2: session.shipping_details.address.line2,
-                    city: session.shipping_details.address.city!,
-                    postal_code: session.shipping_details.address.postal_code!,
+                shippingAddress: sessionWithShipping.shipping_details?.address ? {
+                    line1: sessionWithShipping.shipping_details.address.line1!,
+                    line2: sessionWithShipping.shipping_details.address.line2,
+                    city: sessionWithShipping.shipping_details.address.city!,
+                    postal_code: sessionWithShipping.shipping_details.address.postal_code!,
                 } : undefined
             })
         });

@@ -1,4 +1,4 @@
-```javascript
+
 "use client";
 
 import { useState, useMemo } from "react";
@@ -77,6 +77,7 @@ export default function AdminDashboard({ bookings: initialBookings, blockedDates
         <div className="p-8">
             <header className="flex justify-between items-center mb-10">
                 <div>
+                    {dateFilter === 'custom' && (
                         <div className="flex items-center gap-2 ml-2 animate-in fade-in slide-in-from-right-4">
                             <input
                                 type="date"
